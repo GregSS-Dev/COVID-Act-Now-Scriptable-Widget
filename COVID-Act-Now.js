@@ -334,7 +334,7 @@ async function run() {
 
     const level = calculateLevel(rlOverall);
 
-    const mCaseDensity = data.mCaseDensity.toFixed(2);
+    const mCaseDensity = data.mCaseDensity.toFixed(1);
     console.log({ mCaseDensity });
 
     const startColor = Color.dynamic(new Color(level.startColor), new Color(level.darkStartColor));
