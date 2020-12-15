@@ -228,98 +228,147 @@ async function getCovidData(fipsCode) {
 			fips: json.fips,
 			county: json.county,
 			state: json.state,
+			url: json.url,
 			lastUpdatedDate: json.lastUpdatedDate,
 			rlOverall: json.riskLevels.overall,
-			rlTestPositivityRatio: json.riskLevels.testPositivityRatio,
-			rlCaseDensity: json.riskLevels.caseDensity,
-			rlcontactTracerCapacityRatio: json.riskLevels.contactTracerCapacityRatio,
-			rlIcuHeadroomRatio: json.riskLevels.icuHeadroomRatio,
-			mTestPositivityRatio: json.metrics.testPositivityRatio,
-			mCaseDensity: json.metrics.caseDensity,
-			mContactTracerCapacityRatio: json.metrics.contactTracerCapacityRatio,
-			mInfectionRate: json.metrics.infectionRate,
-			mIcuHeadroomRatio: json.metrics.icuHeadroomRatio,
-			mTestPositivityRatioChangeIndicator: mTestPositivityRatioChangeIndicator,
-			mCaseDensityChangeIndicator: mCaseDensityChangeIndicator,
-			mContactTracerCapacityRatioChangeIndicator: mContactTracerCapacityRatioChangeIndicator,
-			mInfectionRateChangeIndicator: mInfectionRateChangeIndicator,
-			mIcuHeadroomRatioChangeIndicator: mIcuHeadroomRatioChangeIndicator,
-			url: json.url,
-	};
+			testPositivityRatio: {
+				riskLevel: json.riskLevels.testPositivityRatio,
+				metric: json.metrics.testPositivityRatio,
+				changeIndicator: mTestPositivityRatioChangeIndicator,
+				label: "Positive Test Rate",
+				precision: 1,
+				displaysAsPercent: true
+			},
+			caseDensity: {
+				riskLevel: json.riskLevels.caseDensity,
+				metric: json.metrics.caseDensity,
+				changeIndicator: mCaseDensityChangeIndicator,
+				label: "Daily New Cases/100K",
+				precision: 1,
+				displaysAsPercent: false
+			},
+			contactTracerCapacityRatio: {
+				riskLevel: json.riskLevels.contactTracerCapacityRatio,
+				metric: json.metrics.contactTracerCapacityRatio,
+				changeIndicator: mContactTracerCapacityRatioChangeIndicator,
+				label: "Tracers Hired",
+				precision: 0,
+				displaysAsPercent: true
+			},
+			icuHeadroomRatio: {
+				riskLevel: json.riskLevels.icuHeadroomRatio,
+				metric: json.metrics.icuHeadroomRatio,
+				changeIndicator: mIcuHeadroomRatioChangeIndicator,
+				label: "ICU Headroom Used",
+				precision: 0,
+				displaysAsPercent: true
+			},
+			infectionRate: {
+				riskLevel: json.riskLevels.infectionRate,
+				metric: json.metrics.infectionRate,
+				changeIndicator: mInfectionRateChangeIndicator,
+				label: "Infection Rate",
+				precision: 2,
+				displaysAsPercent: false
+			}
+		};
 	} catch (error) {
 		console.log(`Could not parse JSON: ${error}`);
 		throw 666;
 	}
 }
 
-/** @type {Array<LevelAttribute>} sorted by threshold desc. */
+/** @type {Array<ColorAttribute>} sorted light to dark. */
+const LIGHT = 0;
+const DARK = 1;
+const BACKGROUND_COLORS = [
+	{
+		startColor: "ffffff",
+		endColor: "d7d7d7",
+		textColor: "0c0c0c",
+		labelTextColor: "aaaaaa"
+	},
+	{
+		startColor: "333333",
+		endColor: "000000",
+		textColor: "cccccc",
+		labelTextColor: "333333"
+	}
+];
+/** @type {Array<LevelAttribute>} sorted by risk level. */
 const RISK_LEVEL_ATTRIBUTES = [
 	{
 		label: "Low",
 		description: "On track to contain COVID",
+		indicatorColor: "00d474",
 		startColor: "00d474",
 		endColor: "00ad5e",
 		textColor: "f0f0f0",
 		darkStartColor: "333333",
 		darkEndColor: "000000",
 		darkTextColor: "00d474",
-		symbol: "checkmark.circle.fill",
+		symbol: "checkmark.circle.fill"
 	},
 	{
 		label: "Medium",
 		description: "Slow disease growth",
+		indicatorColor: "ffc900",
 		startColor: "ffc900",
 		endColor: "d8aa00",
 		textColor: "0f0f0f",
 		darkStartColor: "333333",
 		darkEndColor: "000000",
 		darkTextColor: "ffc900",
-		symbol: "exclamationmark.circle.fill",
+		symbol: "exclamationmark.circle.fill"
 	},
 	{
 		label: "High",
 		description: "At risk of outbreak",
+		indicatorColor: "ff9600",
 		startColor: "ff9600",
 		endColor: "d87f00",
 		textColor: "f0f0f0",
 		darkStartColor: "333333",
 		darkEndColor: "000000",
 		darkTextColor: "ff9600",
-		symbol: "exclamationmark.triangle.fill",
+		symbol: "exclamationmark.triangle.fill"
 	},
 	{
 		label: "Critical",
 		description: "Active or imminent outbreak",
+		indicatorColor: "d9002c",
 		startColor: "d9002c",
 		endColor: "d9002c",
 		textColor: "f0f0f0",
 		darkStartColor: "333333",
 		darkEndColor: "000000",
 		darkTextColor: "d9002c",
-		symbol: "exclamationmark.octagon.fill",
+		symbol: "exclamationmark.octagon.fill"
 	},
 	{
 		label: "Unknown",
 		description: "Risk unknown",
+		indicatorColor: "cccccc",
 		startColor: "cccccc",
 		endColor: "a5a5a5",
 		textColor: "0f0f0f",
 		darkStartColor: "333333",
 		darkEndColor: "000000",
 		darkTextColor: "cccccc",
-		symbol: "questionmark.circle.fill",
+		symbol: "questionmark.circle.fill"
 	},
 	{
 		label: "Extreme",
 		description: "Severe outbreak",
+		indicatorColor: "790019",
 		startColor: "790019",
 		endColor: "790019",
 		textColor: "f0f0f0",
 		darkStartColor: "333333",
 		darkEndColor: "000000",
 		darkTextColor: "d8002c",
-		symbol: "bolt.circle.fill",
-	},
+		symbol: "bolt.circle.fill"
+	}
 ];
 
 /**
@@ -336,6 +385,7 @@ function calculateLevel(rl) {
 	return {
 		label: RISK_LEVEL_ATTRIBUTES[level].label,
 		description: RISK_LEVEL_ATTRIBUTES[level].description,
+		indicatorColor: RISK_LEVEL_ATTRIBUTES[level].indicatorColor,
 		startColor: RISK_LEVEL_ATTRIBUTES[level].startColor,
 		endColor: RISK_LEVEL_ATTRIBUTES[level].endColor,
 		textColor: RISK_LEVEL_ATTRIBUTES[level].textColor,
@@ -376,109 +426,308 @@ function createSymbol(symbolName) {
 	return symbol;
 }
 
-async function run() {
-	const listWidget = new ListWidget();
-	listWidget.setPadding(10, 15, 10, 10);
+/**
+ * Constructs a stack with metric data for display in the widget
+ *
+ * @param {WidgetStack} metricStack
+ * @param {{Number} riskLevel, {Number} metric, {enum} changeIndicator}
+ * @param {Color} textColor
+ */
+function displayMetricStack(metricStack, metricData, textColor) {
+	console.log(metricData);
+	
+	const METRIC_TEXT_SIZE = 18;
+	const METRIC_MIN_SCALE = 1.0;
+	const METRIC_LINE_LIMIT = 1;
+	const METRIC_CHANGE_INDICATOR_SIZE = 24;
+	const METRIC_LABEL_TEXT_SIZE = 10;
+	const METRIC_LABEL_MIN_SCALE = 0.6;
+	const METRIC_LABEL_LINE_LIMIT = 1;
+	
+	metricStack.layoutVertically();
+	metricStack.centerAlignContent();
 
+	const metricLabelStack = metricStack.addStack();
+	metricLabelStack.addSpacer(null);
+	const labelText = metricLabelStack.addText(metricData.label.toUpperCase());
+	labelText.centerAlignText();
+	labelText.lineLimit = METRIC_LINE_LIMIT;
+	labelText.textColor = textColor;
+	labelText.centerAlignText();
+	labelText.font = Font.regularSystemFont(METRIC_LABEL_TEXT_SIZE);
+	labelText.minimumScaleFactor = METRIC_LABEL_MIN_SCALE;
+	metricLabelStack.addSpacer(null);
+
+	const scoreStack = metricStack.addStack();
+	scoreStack.centerAlignContent();
+	
+	scoreStack.addSpacer(null);
+
+	const level = calculateLevel(metricData.riskLevel);
+	const riskSymbol = createSymbol(level.symbol);
+	const riskImg = scoreStack.addImage(riskSymbol.image);
+
+	riskImg.centerAlignImage();
+	riskImg.resizable = false;
+	riskImg.tintColor = Color.dynamic(new Color(level.indicatorColor), new Color(level.darkTextColor));
+	riskImg.imageSize = new Size(30, 36);
+	
+	const metricNumber = new Number(((metricData.displaysAsPercent?100:1) * metricData.metric));
+	const content = scoreStack.addText(metricNumber.toFixed(metricData.precision) + (metricData.displaysAsPercent?"%":""));
+	content.lineLimit = METRIC_LABEL_LINE_LIMIT;
+	content.textColor = metricData.textColor;
+	content.font = Font.semiboldSystemFont(METRIC_TEXT_SIZE);
+	content.minimumScaleFactor = METRIC_MIN_SCALE;
+	const trendSymbolName = changeSymbolNameForComparison(metricData.changeIndicator);
+	if (trendSymbolName) {
+		const trendSymbol = createSymbol(trendSymbolName);
+		const trendImg = scoreStack.addImage(trendSymbol.image);
+		trendImg.resizable = false;
+		trendImg.tintColor = textColor;
+		trendImg.imageSize = new Size(0.8 * METRIC_CHANGE_INDICATOR_SIZE, METRIC_CHANGE_INDICATOR_SIZE);
+	}
+	
+	scoreStack.addSpacer(null);
+}
+
+async function run() {
+	console.log(`Widget family: ${config.widgetFamily}`);
+	
+	const listWidget = new ListWidget();
+	
 	try {
-		 const fipsCode = await getFipsCode();
+		const fipsCode = await getFipsCode();
 
 		if (!fipsCode) {
 			throw "Please specify a 5-digit FIPS code for this widget to load county-level data.";
 		}
 		console.log(`Using FIPS code: ${fipsCode}`);
 
+		// Fetch data for display in the widget
+		
 		const data = await getCovidData(fipsCode);
-
+		console.log(data);
+		
 		const county = `${data.county}`;
 		console.log({ county });
-
+		
 		const state = `${data.state}`;
 		console.log({ state });
-
-		const rlOverall = data.rlOverall;
-		console.log({ rlOverall });
-
+		
 		const url = `${data.url}`;
 		console.log({ url });
-
+		
+		const rlOverall = data.rlOverall;
+		console.log({ rlOverall });
 		const level = calculateLevel(rlOverall);
-
-		const mCaseDensity = data.mCaseDensity.toFixed(1);
-		console.log({ mCaseDensity });
 		
-		const mCaseDensityChangeIndicator = data.mCaseDensityChangeIndicator;
-		console.log({ mCaseDensityChangeIndicator });
-
-		const startColor = Color.dynamic(new Color(level.startColor), new Color(level.darkStartColor));
-					
-		const endColor = Color.dynamic(new Color(level.endColor), new Color(level.darkEndColor));
+		// Prepare widget
 		
-		const textColor = Color.dynamic(new Color(level.textColor), new Color(level.darkTextColor));
+		listWidget.url = url;
 		
-		const gradient = new LinearGradient();
-
-		gradient.colors = [startColor, endColor];
-		gradient.locations = [0.0, 1];
-		console.log({ gradient });
-
-		listWidget.backgroundGradient = gradient;
-
-		const header = listWidget.addText('COVID Risk Level'.toUpperCase());
-		header.textColor = textColor;
-		header.font = Font.regularSystemFont(11);
-		header.minimumScaleFactor = 0.50;
-
-		const wordLevel = listWidget.addText(level.label);
-		wordLevel.textColor = textColor;
-		wordLevel.font = Font.semiboldSystemFont(25);
-		wordLevel.minimumScaleFactor = 0.3;
-
-		listWidget.addSpacer(5);
-
-		const scoreStack = listWidget.addStack();
-		const content = scoreStack.addText(mCaseDensity);
-		content.textColor = textColor;
-		content.font = Font.semiboldSystemFont(30);
-		const riskSymbol = createSymbol(level.symbol);
-		const riskImg = scoreStack.addImage(riskSymbol.image);
-		riskImg.resizable = false;
-		riskImg.tintColor = textColor;
-		riskImg.imageSize = new Size(30, 36);
-		const trendSymbolName = changeSymbolNameForComparison(mCaseDensityChangeIndicator);
-		if (trendSymbolName) {
-			const trendSymbol = createSymbol(trendSymbolName);
-			const trendImg = scoreStack.addImage(trendSymbol.image);
-			trendImg.resizable = false;
-			trendImg.tintColor = textColor;
-			trendImg.imageSize = new Size(30, 36);
-		}
-		
-		const caseDensityLabel = listWidget.addText('New Cases per 100K'.toUpperCase());
-		caseDensityLabel.textColor = textColor;
-		caseDensityLabel.font = Font.regularSystemFont(9);
-		caseDensityLabel.minimumScaleFactor = 0.6;
-
-		listWidget.addSpacer(10);
-
-		const locationText = listWidget.addText(county + ", " + state);
-		locationText.textColor = textColor;
-		locationText.font = Font.regularSystemFont(14);
-		locationText.minimumScaleFactor = 0.5;
-
-		listWidget.addSpacer(2);
-
-		const updatedDate = new Date(data.lastUpdatedDate).toLocaleDateString();
-		const widgetText = listWidget.addText(`Updated ${updatedDate}`);
-		widgetText.textColor = textColor;
-		widgetText.font = Font.regularSystemFont(9);
-		widgetText.minimumScaleFactor = 0.6;
-
 		var refreshDate = new Date();
 		refreshDate.setHours( refreshDate.getHours() + 4 );
 		listWidget.refreshAfterDate = refreshDate;
 		
-		listWidget.url = url;
+		if(config.widgetFamily == "small") {
+			
+			// Lay out small widget
+			
+			listWidget.setPadding(10, 15, 10, 10);
+			
+			const startColor = Color.dynamic(new Color(level.startColor), new Color(level.darkStartColor));
+			
+			const endColor = Color.dynamic(new Color(level.endColor), new Color(level.darkEndColor));
+			
+			const textColor = Color.dynamic(new Color(level.textColor), new Color(level.darkTextColor));
+			
+			const gradient = new LinearGradient();
+			
+			gradient.colors = [startColor, endColor];
+			gradient.locations = [0.0, 1];
+			console.log({ gradient });
+	
+			listWidget.backgroundGradient = gradient;
+	
+			const header = listWidget.addText('COVID Risk Level'.toUpperCase());
+			header.textColor = textColor;
+			header.font = Font.regularSystemFont(11);
+			header.minimumScaleFactor = 0.50;
+	
+			const wordLevel = listWidget.addText(level.label);
+			wordLevel.textColor = textColor;
+			wordLevel.font = Font.semiboldSystemFont(25);
+			wordLevel.minimumScaleFactor = 0.3;
+	
+			listWidget.addSpacer(5);
+	
+			const scoreStack = listWidget.addStack();
+			const content = scoreStack.addText(data.caseDensity.metric.toFixed(1));
+			content.textColor = textColor;
+			content.font = Font.semiboldSystemFont(30);
+			const riskSymbol = createSymbol(level.symbol);
+			const riskImg = scoreStack.addImage(riskSymbol.image);
+			riskImg.resizable = false;
+			riskImg.tintColor = textColor;
+			riskImg.imageSize = new Size(30, 36);
+			const trendSymbolName = changeSymbolNameForComparison(data.caseDensity.changeIndicator);
+			if (trendSymbolName) {
+				const trendSymbol = createSymbol(trendSymbolName);
+				const trendImg = scoreStack.addImage(trendSymbol.image);
+				trendImg.resizable = false;
+				trendImg.tintColor = textColor;
+				trendImg.imageSize = new Size(30, 36);
+			}
+			
+			const caseDensityLabel = listWidget.addText('New Cases per 100K'.toUpperCase());
+			caseDensityLabel.textColor = textColor;
+			caseDensityLabel.font = Font.regularSystemFont(9);
+			caseDensityLabel.minimumScaleFactor = 0.6;
+	
+			listWidget.addSpacer(10);
+	
+			const locationText = listWidget.addText(county + ", " + state);
+			locationText.textColor = textColor;
+			locationText.font = Font.regularSystemFont(14);
+			locationText.minimumScaleFactor = 0.5;
+	
+			listWidget.addSpacer(2);
+	
+			const updatedDate = new Date(data.lastUpdatedDate).toLocaleDateString();
+			const widgetText = listWidget.addText(`Updated ${updatedDate}`);
+			widgetText.textColor = textColor;
+			widgetText.font = Font.regularSystemFont(9);
+			widgetText.minimumScaleFactor = 0.6;
+			
+			
+		} else if(config.widgetFamily == "medium" || config.widgetFamily == null) {
+			
+			// Sizing parameters
+			
+			const SPACING_BETWEEN_METRICS = 35;
+			
+			// Lay out medium widget
+			
+			listWidget.setPadding(0, 0, 0, 0);
+			
+			const startColor = Color.dynamic(new Color(BACKGROUND_COLORS[LIGHT].startColor), new Color(BACKGROUND_COLORS[DARK].startColor));
+			
+			const endColor = Color.dynamic(new Color(BACKGROUND_COLORS[LIGHT].endColor), new Color(BACKGROUND_COLORS[DARK].endColor));
+			
+			const labelTextColor = Color.dynamic(new Color(BACKGROUND_COLORS[LIGHT].labelTextColor), new Color(BACKGROUND_COLORS[DARK].labelTextColor));
+			
+			const textColor = Color.dynamic(new Color(BACKGROUND_COLORS[LIGHT].textColor), new Color(BACKGROUND_COLORS[DARK].textColor));
+			
+			const gradient = new LinearGradient();
+			
+			gradient.colors = [startColor, endColor];
+			gradient.locations = [0.0, 1];
+			console.log({ gradient });
+	
+			listWidget.backgroundGradient = gradient;
+			
+			// Header: (Symbol) COVID Risk: (Level)
+			
+			const headerStack = listWidget.addStack();
+			headerStack.centerAlignContent();
+			headerStack.setPadding(5, 10, 5, 10);
+			
+			const headerStartColor = Color.dynamic(new Color(level.startColor), new Color(level.startColor));
+			
+			const headerEndColor = Color.dynamic(new Color(level.endColor), new Color(level.endColor));
+			
+			const headerTextColor = Color.dynamic(new Color(level.textColor), new Color(level.textColor));
+			
+			const headerGradient = new LinearGradient();
+			headerGradient.colors = [headerStartColor, headerEndColor];
+			headerGradient.locations = [0.0, 1];
+			console.log({ headerGradient });
+			
+			headerStack.backgroundGradient = headerGradient;
+			
+			const riskSymbol = createSymbol(level.symbol);
+			const riskImg = headerStack.addImage(riskSymbol.image);
+			riskImg.resizable = false;
+			riskImg.tintColor = headerTextColor;
+			
+			headerStack.addSpacer(5);
+			
+			const headerText = headerStack.addText(`${county}, ${state}: ${level.label}`);
+			headerText.lineLimit = 1;
+			headerText.textColor = headerTextColor;
+			headerText.font = Font.semiboldSystemFont(16);
+			headerText.minimumScaleFactor = 0.6;
+			
+			headerStack.addSpacer(null);
+			
+			// Content
+			
+			listWidget.addSpacer(null);
+			
+			// Horizontal Metric Area 1
+			
+			const metricStack1 = listWidget.addStack();
+			
+			metricStack1.addSpacer(null);
+			
+			// Horizontal Metric Area: Case Density
+			
+			const cdMetricStack = metricStack1.addStack();
+			displayMetricStack(cdMetricStack, data.caseDensity, textColor)
+			
+			metricStack1.addSpacer(SPACING_BETWEEN_METRICS);
+			
+			// Horizontal Metric Area: Infection Rate
+			
+			const irMetricStack = metricStack1.addStack();
+			displayMetricStack(irMetricStack, data.infectionRate, textColor)
+			
+			// Horizontal Metric Area 1 End
+			
+			metricStack1.addSpacer(null);
+			
+			listWidget.addSpacer(5);
+			
+			// Horizontal Metric Area 2
+			
+			const metricStack2 = listWidget.addStack();
+			
+			metricStack2.addSpacer(null);
+			
+			// Horizontal Metric Area: Positive Test Rate
+			
+			const tprMetricStack = metricStack2.addStack();
+			displayMetricStack(tprMetricStack, data.testPositivityRatio, textColor)
+			
+			metricStack2.addSpacer(SPACING_BETWEEN_METRICS);
+			
+			// Horizontal Metric Area: ICU Headroom
+			
+			const icuMetricStack = metricStack2.addStack();
+			displayMetricStack(icuMetricStack, data.icuHeadroomRatio, textColor)
+			
+			/*
+			metricStack2.addSpacer(SPACING_BETWEEN_METRICS);
+			
+			// Horizontal Metric Area: Contact Tracers
+			
+			const ctMetricStack = metricStack2.addStack();
+			displayMetricStack(ctMetricStack, data.contactTracerCapacityRatio, textColor)
+			*/
+			// Horizontal Metric Area 2 End
+			
+			metricStack2.addSpacer(null);
+			
+			const updatedDate = new Date(data.lastUpdatedDate).toLocaleDateString();
+
+			const labelText = listWidget.addText(`COVID Act Now — Updated ${updatedDate}`.toUpperCase());
+			labelText.centerAlignText()
+			labelText.textColor = textColor;
+			labelText.font = Font.regularSystemFont(11);
+			labelText.minimumScaleFactor = 0.50;
+			
+			listWidget.addSpacer(5);
+		}
 	} catch (error) {
 		if (error === 666) {
 			// Handle JSON parsing errors with a custom error layout
@@ -506,7 +755,7 @@ async function run() {
 	}
 
 	if (config.runsInApp) {
-		listWidget.presentSmall();
+		listWidget.presentMedium();
 	}
 
 	Script.setWidget(listWidget);
