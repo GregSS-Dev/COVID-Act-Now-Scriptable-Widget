@@ -1,6 +1,8 @@
 # COVID-Act-Now-Scriptable-Widget
 
-![COVID Act Now Scriptable Widgets](https://raw.githubusercontent.com/GregSS-Dev/COVID-Act-Now-Scriptable-Widget/main/README-images/widgets.png)
+![COVID Act Now Small Scriptable Widgets](https://raw.githubusercontent.com/GregSS-Dev/COVID-Act-Now-Scriptable-Widget/main/README-images/widgets.png)
+
+![COVID Act Now Medium Scriptable Widget](https://raw.githubusercontent.com/GregSS-Dev/COVID-Act-Now-Scriptable-Widget/main/README-images/medium.png)
 
 Widget to display COVID risk data from COVID Act Now (covidactnow.org) using Scriptable for iOS by Simon Støvring.
 
@@ -20,7 +22,7 @@ The widget uses the FCC Data API -- specifically, the [Area API](https://geo.fc
 
 To use this widget, make a new script inside Scriptable and paste in the contents of `COVID-Act-Now.js`.
 
-You can run the script from within the app, or add a new Small widget on your home screen, set it to Scriptable, and choose the script by tapping and holding on the widget, choosing Edit Widget, and choosing the script by tapping on the Script field.
+You can run the script from within the app, or add a new Small or Medium widget on your home screen, set it to Scriptable, and choose the script by tapping and holding on the widget, choosing Edit Widget, and choosing the script by tapping on the Script field.
 
 ![Widget Configuration](https://raw.githubusercontent.com/GregSS-Dev/COVID-Act-Now-Scriptable-Widget/main/README-images/configuration.png)
 
